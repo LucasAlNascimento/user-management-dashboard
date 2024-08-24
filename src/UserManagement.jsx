@@ -59,7 +59,7 @@ export default function UserManagement() {
   return (
     <main className='flex w-100 h-screen justify-center'>
       <div className="flex flex-col w-full h-auto items-center p-10 gap-16">
-        <h1 className="text-2xl">User Management Dashboard</h1>
+        <h1 className="text-3xl font-bold">User Management Dashboard</h1>
         <div className="flex gap-5 items-center">
           <input
             className="px-4 py-2 border border-gray-300 rounded-full focus:outline-none"
@@ -69,7 +69,7 @@ export default function UserManagement() {
             onChange={(e) => setSearchTerm(e.target.value)}
             onKeyDown={keyEnter}
           />
-          <button className="bg-black text-white px-4 py-2 rounded-lg" onClick={fetchUsers}>Fetch Users</button>
+          <button className="bg-black text-white px-4 py-2 rounded-lg transition-colors duration-300 hover:bg-blue-400" onClick={fetchUsers}>Fetch Users</button>
         </div>
 
         {error && <p className="">{error}</p>}
