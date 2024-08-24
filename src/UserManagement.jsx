@@ -5,6 +5,7 @@ export default function UserManagement() {
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [error, setError] = useState(null);
+  const [isUsersFetched, setIsUsersFetched] = useState(false);
   const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'ascending' });
   const [currentPage, setCurrentPage] = useState(1);
   const [usersPerPage] = useState(5);
@@ -15,6 +16,7 @@ export default function UserManagement() {
       const response = await axios.get('https://jsonplaceholder.typicode.com/users');
       setUsers(response.data);
       setError(null);
+      setIsUsersFetched(true);
     } catch (error) {
       setError(`Failed to fetch users: ${error.message}`);
     }
@@ -48,6 +50,12 @@ export default function UserManagement() {
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
+  const keyEnter = (event) => {
+    if (event.key === 'Enter') {
+      fetchUsers();
+    }
+  }
+
   return (
     <main className='flex w-100 h-screen justify-center'>
       <div className="flex flex-col w-full h-auto items-center p-10 gap-16">
@@ -59,42 +67,53 @@ export default function UserManagement() {
             placeholder="Search by name"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={keyEnter}
           />
           <button className="bg-black text-white px-4 py-2 rounded-lg" onClick={fetchUsers}>Fetch Users</button>
         </div>
-        {error && <p className="">{error}</p>}
-        <table className="min-w-full mx-auto divide-y">
-          <thead>
-            <tr className='mx-5 divide-x'>
-              <th className="px-6 py-3 hover:cursor-pointer" onClick={() => handleSort('name')}>Name</th>
-              <th className="px-6 py-3 hover:cursor-pointer" onClick={() => handleSort('username')}>Username</th>
-              <th className="px-6 py-3 hover:cursor-pointer" onClick={() => handleSort('email')}>Email</th>
-              <th className="px-6 py-3 hover:cursor-pointer" onClick={() => handleSort('phone')}>Phone</th>
-              <th className="px-6 py-3 hover:cursor-pointer" onClick={() => handleSort('address.city')}>City</th>
-              <th className="px-6 py-3 hover:cursor-pointer" onClick={() => handleSort('company.name')}>Company</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y">
-            {currentUsers.map(user => (
-              <tr key={user.id}>
-                <td className="px-6 py-4 text-center">{user.name}</td>
-                <td className="px-6 py-4 text-center">{user.username}</td>
-                <td className="px-6 py-4 text-center">{user.email}</td>
-                <td className="px-6 py-4 text-center">{user.phone}</td>
-                <td className="px-6 py-4 text-center">{user.address.city}</td>
-                <td className="px-6 py-4 text-center">{user.company.name}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
 
-        <div className="flex justify-center items-center gap-4">
-          {[...Array(Math.ceil(filteredUsers.length / usersPerPage)).keys()].map(number => (
-            <button className="w-8 px-2 py-1 bg-black text-white rounded-md" key={number + 1} onClick={() => paginate(number + 1)}>
-              {number + 1}
-            </button>
-          ))}
-        </div>
+        {error && <p className="">{error}</p>}
+
+        {isUsersFetched && filteredUsers.length === 0 && searchTerm !== '' && (
+          <p className="text-red-500">No names found</p>
+        )}
+
+        {isUsersFetched && searchTerm !== '' && filteredUsers.length > 0 && (
+          <>
+            <table className="min-w-full mx-auto divide-y">
+              <thead>
+                <tr className='mx-5 divide-x'>
+                  <th className="px-6 py-3 hover:cursor-pointer" onClick={() => handleSort('name')}>Name</th>
+                  <th className="px-6 py-3 hover:cursor-pointer" onClick={() => handleSort('username')}>Username</th>
+                  <th className="px-6 py-3 hover:cursor-pointer" onClick={() => handleSort('email')}>Email</th>
+                  <th className="px-6 py-3 hover:cursor-pointer" onClick={() => handleSort('phone')}>Phone</th>
+                  <th className="px-6 py-3 hover:cursor-pointer" onClick={() => handleSort('address.city')}>City</th>
+                  <th className="px-6 py-3 hover:cursor-pointer" onClick={() => handleSort('company.name')}>Company</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {currentUsers.map(user => (
+                  <tr key={user.id}>
+                    <td className="px-6 py-4 text-center">{user.name}</td>
+                    <td className="px-6 py-4 text-center">{user.username}</td>
+                    <td className="px-6 py-4 text-center">{user.email}</td>
+                    <td className="px-6 py-4 text-center">{user.phone}</td>
+                    <td className="px-6 py-4 text-center">{user.address.city}</td>
+                    <td className="px-6 py-4 text-center">{user.company.name}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            <div className="flex justify-center items-center gap-4">
+              {[...Array(Math.ceil(filteredUsers.length / usersPerPage)).keys()].map(number => (
+                <button className="w-8 px-2 py-1 bg-black text-white rounded-md" key={number + 1} onClick={() => paginate(number + 1)}>
+                  {number + 1}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
       </div>
     </main>
   );
